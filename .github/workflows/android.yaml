@@ -1,0 +1,26 @@
+name: Android Target CI/CD
+on: [push]
+jobs:
+  Build-Test-Package:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml
+      - run: flutter pub get
+      - run: flutter test
+      - run: flutter build apk
+      - run: flutter build appbundle
+      - name: Archive bundle and apk
+        uses: actions/upload-artifact@v4
+        with:
+          # Keep this short to avoid polluting github
+          name: android-release
+          retention-days: 1
+          path: |
+            build/app/outputs/bundle/release/*.aab
+            build/app/outputs/flutter-apk/*
